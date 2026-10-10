@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Heart ❤️</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #060208;
+    }
+    .side-text {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff496b;
+    font-family: Georgia, serif;
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: bold;
+    text-shadow:
+        0 0 8px rgba(255, 40, 85, 0.8),
+        0 0 20px rgba(255, 20, 70, 0.5);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.left-text {
+    left: 7%;
+}
+
+.right-text {
+    right: 7%;
+}
+
+.bottom-text {
+    position: fixed;
+    bottom: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ff496b;
+    font-family: Georgia, serif;
+    font-size: clamp(24px, 3.5vw, 42px);
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-shadow:
+        0 0 8px rgba(255, 40, 85, 0.8),
+        0 0 20px rgba(255, 20, 70, 0.5);
+    z-index: 5;
+    pointer-events: none;
+}
+
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    #replay {
+        position: fixed;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 11px 25px;
+        border: 1px solid #792033;
+        border-radius: 30px;
+        background: #16030a;
+        color: #ff9bad;
+        font: 12px Arial, sans-serif;
+        letter-spacing: 2px;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    #replay:hover {
+        background: #51091d;
+        box-shadow: 0 0 20px #a7193d;
+    }
+
+    #error {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        color: #ff8b9e;
+        font: 14px monospace;
+        white-space: pre-wrap;
+        z-index: 20;
+    }
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+<div class="side-text left-text">I</div>
+
+<div class="side-text right-text">You</div>
+
+<div class="bottom-text">Shreeja</div>
+<div id="error"></div>
+<button id="replay">♥ REPLAY ♥</button>
+
+<script>
+"use strict";
+
+(() => {
+
+    // =========================================
+    // SETTINGS
+    // =========================================
+
+    const BG = "#060208";
+    const FONT = "Arial";
+
+    const SC = 21;
+    const OY = 20;
+
+    const DURATION = 10000;
+    const ANIM = 672;
+    const LIFT = 34;
+    const GAP = 7;
+
+    const SIZES = [9, 10, 11, 12];
+
+    const PHRASES = [
+        "I love you",
+        "Seni seviyorum",
+        "Te amo",
+        "Je t'aime",
+        "Ich liebe dich",
+        "Ti amo",
+        "Eu te amo",
+        "Я тебя люблю",
+        "사랑해",
+        "愛してる",
+        "我爱你",
+        "मैं तुमसे प्यार करता हूँ",
+        "Σ' αγαπώ",
+        "Ik hou van jou",
+        "Jag älskar dig",
+        "Kocham cię",
+        "ฉันรักเธอ",
+        "Anh yêu em",
+        "Aku cinta kamu",
+        "Я тебе кохаю"
+    ];
+
+    const WINE = [0.58, 0.00, 0.09];
+    const CRIMSON = [0.90, 0.05, 0.14];
+    const BLOOD = [0.98, 0.10, 0.16];
+    const FLASH = [1.00, 0.78, 0.78];
+
+    const BGC = [6 / 255, 2 / 255, 8 / 255];
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const errorBox = document.getElementById("error");
+
+    if (!ctx) {
+        errorBox.textContent = "ERROR: Canvas is not supported.";
+        return;
+    }
+
+    let W = 0;
+    let H = 0;
+    let DPR = 1;
+    let SCALE = 1;
+
+    let particles = [];
+    let startTime = 0;
+    let frameId = 0;
+    let seed = 11;
+
+    // =========================================
+    // RANDOM
+    // =========================================
+
+    function random() {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+    }
+
+    function between(a, b) {
+        return a + random() * (b - a);
+    }
+
+    function choose(arr) {
+        return arr[Math.floor(random() * arr.length)];
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+
+        return arr;
+    }
+
+    function clamp(v) {
+        return Math.max(0, Math.min(1, v));
+    }
+
+    // =========================================
+    // COLORS
+    // =========================================
+
+    function mix(a, b, k) {
+        return a.map((v, i) => v + (b[i] - v) * k);
+    }
+
+    function dim(c, k) {
+        return c.map(v => v * k);
+    }
+
+    function hex(c) {
+        return "#" + c.map(v => {
+            return Math.round(
+                clamp(v) * 255
+            ).toString(16).padStart(2, "0");
+        }).join("");
+    }
+
+    // =========================================
+    // HEART MATHEMATICS
+    // =========================================
+
+    function heart(a) {
+        const x = 16 * Math.pow(Math.sin(a), 3);
+
+        const y =
+            13 * Math.cos(a)
+            - 5 * Math.cos(2 * a)
+            - 2 * Math.cos(3 * a)
+            - Math.cos(4 * a);
+
+        return {
+            x: x * SC,
+            y: y * SC + OY
+        };
+    }
+
+    const POLY = [];
+
+    for (let i = 0; i < 720; i++) {
+        POLY.push(heart(2 * Math.PI * i / 720));
+    }
+
+    const YMAX = Math.max(...POLY.map(p => p.y));
+    const YMIN = Math.min(...POLY.map(p => p.y));
+    const CY = (YMAX + YMIN) / 2;
+
+    // =========================================
+    // HORIZONTAL HEART BOUNDARY
+    //
+    // Find intersections of a horizontal line
+    // with the mathematical heart polygon.
+    // =========================================
+
+    function spans(y) {
+        const xs = [];
+
+        for (let i = 0; i < POLY.length; i++) {
+            const a = POLY[i];
+            const b = POLY[(i + 1) % POLY.length];
+
+            if (
+                (a.y <= y && y < b.y) ||
+                (b.y <= y && y < a.y)
+            ) {
+                const x = a.x +
+                    (y - a.y) * (b.x - a.x) /
+                    (b.y - a.y);
+
+                xs.push(x);
+            }
+        }
+
+        xs.sort((a, b) => a - b);
+
+        const result = [];
+
+        for (let i = 0; i + 1 < xs.length; i += 2) {
+            result.push([xs[i], xs[i + 1]]);
+        }
+
+        return result;
+    }
+
+    // =========================================
+    // RESPONSIVE CANVAS
+    // =========================================
+
+    function resize() {
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+        W = window.innerWidth;
+        H = window.innerHeight;
+
+        canvas.width = Math.round(W * DPR);
+        canvas.height = Math.round(H * DPR);
+
+        SCALE = Math.min(
+            (W - 30) / (32 * SC),
+            (H - 30) / ((YMAX - YMIN) + 50)
+        );
+
+        SCALE = Math.max(0.1, SCALE);
+    }
+
+    // =========================================
+    // CREATE THE HEART
+    // =========================================
+
+    function buildHeart() {
+        seed = 11;
+
+        const result = [];
+
+        let phrases = shuffle([...PHRASES]);
+        let phraseIndex = 0;
+
+        function nextPhrase() {
+            if (phraseIndex >= phrases.length) {
+                phrases = shuffle([...PHRASES]);
+                phraseIndex = 0;
+            }
+
+            return phrases[phraseIndex++];
+        }
+
+        const rowHeight = 16;
+
+        // Draw the heart from top to bottom.
+
+        for (
+            let y = YMAX - rowHeight / 2;
+            y > YMIN + rowHeight / 2;
+            y -= rowHeight
+        ) {
+            const row = spans(y);
+
+            for (const [left, right] of row) {
+                const lo = left + 3;
+                const hi = right - 3;
+
+                if (hi <= lo) continue;
+
+                let cursor = lo + between(0, 4);
+
+                const line = [];
+
+                // Fill this horizontal row with phrases.
+
+                while (cursor < hi) {
+                    let selected = null;
+
+                    for (let attempt = 0; attempt < 20; attempt++) {
+                        const text = nextPhrase();
+                        const size = choose(SIZES);
+
+                        ctx.font = `bold ${size}px ${FONT}`;
+
+                        const width = ctx.measureText(text).width;
+
+                        if (cursor + width <= hi) {
+                            selected = { text, size, width };
+                            break;
+                        }
+                    }
+
+                    if (!selected) break;
+
+                    line.push({
+                        x: cursor + selected.width / 2,
+                        y: y,
+                        text: selected.text,
+                        size: selected.size,
+                        width: selected.width
+                    });
+
+                    cursor += selected.width + GAP;
+                }
+
+                // Distribute phrases evenly along each row.
+
+                if (line.length > 1) {
+                    const last = line[line.length - 1];
+
+                    const spare =
+                        hi - (last.x + last.width / 2);
+
+                    for (let i = 0; i < line.length; i++) {
+                        line[i].x +=
+                            spare * i / (line.length - 1);
+                    }
+                } else if (line.length === 1) {
+                    line[0].x = (lo + hi) / 2;
+                }
+
+                // Assign colors and animation properties.
+
+                for (let i = 0; i < line.length; i++) {
+                    const p = line[i];
+
+                    p.edge = i === 0 || i === line.length - 1;
+
+                    const radius = Math.min(
+                        1,
+                        Math.hypot(
+                            p.x / (16 * SC),
+                            (p.y - CY) / (14.5 * SC)
+                        )
+                    );
+
+                    let color = mix(
+                        WINE,
+                        CRIMSON,
+                        0.25 + 0.75 * radius
+                    );
+
+                    color = mix(
+                        color,
+                        BLOOD,
+                        between(0, 0.35) +
+                        (p.edge ? 0.3 : 0)
+                    );
+
+                    p.color = color.map(v => Math.min(1, v));
+
+                    p.dx = between(-10, 10);
+                    p.delay = 0;
+
+                    result.push(p);
+                }
+            }
+        }
+
+        // Draw the heart outline first, then its interior.
+
+        const outline = result.filter(p => p.edge);
+        const interior = result.filter(p => !p.edge);
+
+        outline.sort((a, b) => {
+            return Math.atan2(a.x, a.y - CY) -
+                   Math.atan2(b.x, b.y - CY);
+        });
+
+        // Deterministic ordering: brightest outer areas first.
+
+        interior.sort((a, b) => {
+            const ra = Math.hypot(
+                a.x / (16 * SC),
+                (a.y - CY) / (14.5 * SC)
+            );
+
+            const rb = Math.hypot(
+                b.x / (16 * SC),
+                (b.y - CY) / (14.5 * SC)
+            );
+
+            return rb - ra;
+        });
+
+        const ordered = [...outline, ...interior];
+
+        ordered.forEach((p, i) => {
+            p.delay =
+                i / Math.max(1, ordered.length - 1) *
+                DURATION;
+        });
+
+        console.log("Heart phrases generated:", ordered.length);
+
+        if (ordered.length === 0) {
+            throw new Error("No heart phrases were generated.");
+        }
+
+        return ordered;
+    }
+
+    // =========================================
+    // DRAW A PHRASE
+    // =========================================
+
+    function drawParticle(p, elapsed) {
+        const localTime = elapsed - p.delay;
+
+        if (localTime < 0) return;
+
+        const u = clamp(localTime / ANIM);
+
+        // Smooth cubic easing.
+
+        const e = 1 - Math.pow(1 - u, 3);
+
+        const x = p.x + p.dx * (1 - e);
+        const y = p.y - (1 - e) * LIFT;
+
+        // Center the heart on the screen.
+
+        const sx = W / 2 + x * SCALE;
+        const sy = H / 2 - (y - CY) * SCALE;
+
+        const color = p.color;
+
+        const shadow = mix(
+            BGC,
+            dim(color, 0.30),
+            e
+        );
+
+        const halo = mix(
+            BGC,
+            dim(color, 0.20),
+            e * e
+        );
+
+        const flash = 0.75 * Math.sin(
+            Math.PI * clamp((u - 0.55) / 0.45)
+        );
+
+        const main = mix(
+            mix(BGC, color, Math.pow(e, 1.5)),
+            FLASH,
+            flash
+        );
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        // Shadow.
+
+        ctx.font = `bold ${p.size * SCALE}px ${FONT}`;
+        ctx.fillStyle = hex(shadow);
+
+        ctx.fillText(
+            p.text,
+            sx + 2 * SCALE,
+            sy + 3 * SCALE
+        );
+
+        // Halo.
+
+        ctx.font = `bold ${(p.size + 1) * SCALE}px ${FONT}`;
+        ctx.fillStyle = hex(halo);
+
+        ctx.shadowBlur = 5 * SCALE;
+        ctx.shadowColor = hex(dim(color, 0.3));
+
+        ctx.fillText(p.text, sx, sy);
+
+        ctx.shadowBlur = 0;
+
+        // Main text.
+
+        ctx.font = `bold ${p.size * SCALE}px ${FONT}`;
+        ctx.fillStyle = hex(main);
+
+        ctx.fillText(p.text, sx, sy);
+    }
+
+    // =========================================
+    // SHIMMER
+    // =========================================
+
+    function drawShimmer(elapsed) {
+        for (const p of particles) {
+            if (elapsed < p.delay + ANIM) continue;
+
+            const phase =
+                elapsed * 0.001 +
+                p.x * 0.013 +
+                p.y * 0.017;
+
+            const glow = Math.pow(
+                Math.max(0, Math.sin(phase)),
+                24
+            );
+
+            if (glow < 0.05) continue;
+
+            const x = W / 2 + p.x * SCALE;
+            const y = H / 2 - (p.y - CY) * SCALE;
+
+            ctx.font = `bold ${p.size * SCALE}px ${FONT}`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            ctx.fillStyle = hex(
+                mix(p.color, FLASH, glow * 0.6)
+            );
+
+            ctx.fillText(p.text, x, y);
+        }
+    }
+
+    // =========================================
+    // RENDER FRAME
+    // =========================================
+
+    function render(elapsed) {
+        // Clear the entire canvas.
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        ctx.fillStyle = BG;
+
+        ctx.fillRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        // Switch to CSS pixel coordinates.
+
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+        for (const p of particles) {
+            drawParticle(p, elapsed);
+        }
+
+        drawShimmer(elapsed);
+    }
+
+    // =========================================
+    // ANIMATION LOOP
+    // =========================================
+
+    function animate(now) {
+        render(now - startTime);
+
+        frameId = requestAnimationFrame(animate);
+    }
+
+    // =========================================
+    // START / REPLAY
+    // =========================================
+
+    function start() {
+        cancelAnimationFrame(frameId);
+
+        errorBox.textContent = "";
+
+        try {
+            resize();
+
+            particles = buildHeart();
+
+            startTime = performance.now();
+
+            // The first frame is drawn immediately.
+
+            render(0);
+
+            frameId = requestAnimationFrame(animate);
+
+        } catch (err) {
+            console.error(err);
+
+            errorBox.textContent =
+                "ANIMATION ERROR\n" +
+                err.message +
+                "\n\nOpen Chrome DevTools (Ctrl+Shift+J) for details.";
+        }
+    }
+
+    document.getElementById("replay").addEventListener(
+        "click",
+        start
+    );
+
+    window.addEventListener("resize", () => {
+        resize();
+
+        if (particles.length) {
+            render(performance.now() - startTime);
+        }
+    });
+
+    // Start automatically.
+
+    start();
+
+})();
+</script>
+
+</body>
+</html>
