@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Love Heart ❤️</title>
+<title>For Shreeja ❤️</title>
 
 <style>
     * {
@@ -19,126 +19,197 @@
         background: #060208;
     }
 
-   body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 0;
+    /* =====================================
+       BACKGROUND PHOTO
+       ===================================== */
 
-    background:
-        linear-gradient(
-            rgba(6, 2, 8, 0.58),
-            rgba(6, 2, 8, 0.72)
-        ),
-        url("./couple.jpeg") center center / cover no-repeat;
+    #photo-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
 
-    filter: brightness(0.75);
-    pointer-events: none;
-}
+        background-image: url("./shreeja.jpg");
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
 
-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-}
+        transform: scale(1.02);
+    }
 
-#replay {
-    z-index: 10;
-}
-    .side-text {
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ff496b;
-    font-family: Georgia, serif;
-    font-size: clamp(28px, 4vw, 52px);
-    font-weight: bold;
-    text-shadow:
-        0 0 8px rgba(255, 40, 85, 0.8),
-        0 0 20px rgba(255, 20, 70, 0.5);
-    z-index: 5;
-    pointer-events: none;
-}
+    /* Dark overlay keeps the heart readable. */
 
-.left-text {
-    left: 7%;
-}
+    #photo-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
 
-.right-text {
-    right: 7%;
-}
+        background: rgba(6, 2, 8, 0.52);
+    }
 
-.bottom-text {
-    position: fixed;
-    bottom: 65px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ff496b;
-    font-family: Georgia, serif;
-    font-size: clamp(24px, 3.5vw, 42px);
-    font-weight: bold;
-    letter-spacing: 3px;
-    text-shadow:
-        0 0 8px rgba(255, 40, 85, 0.8),
-        0 0 20px rgba(255, 20, 70, 0.5);
-    z-index: 5;
-    pointer-events: none;
-}
+    /* =====================================
+       ANIMATED HEART CANVAS
+       ===================================== */
 
-    canvas {
+    #canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+
         display: block;
         width: 100%;
         height: 100%;
+
+        background: transparent;
     }
+
+    /* =====================================
+       I — YOU
+       ===================================== */
+
+    .side-text {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+
+        z-index: 4;
+        pointer-events: none;
+
+        color: #ff718d;
+
+        font-family: Georgia, serif;
+        font-size: clamp(30px, 4vw, 54px);
+        font-weight: bold;
+
+        text-shadow:
+            0 0 8px rgba(255, 40, 85, 0.9),
+            0 0 20px rgba(255, 20, 70, 0.7),
+            0 0 40px rgba(255, 20, 70, 0.35);
+    }
+
+    .left-text {
+        left: 7%;
+    }
+
+    .right-text {
+        right: 7%;
+    }
+
+    /* =====================================
+       SHREEJA
+       ===================================== */
+
+    .bottom-text {
+        position: fixed;
+        bottom: 65px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        z-index: 4;
+        pointer-events: none;
+
+        color: #ff718d;
+
+        font-family: Georgia, serif;
+        font-size: clamp(26px, 3.5vw, 44px);
+        font-weight: bold;
+        letter-spacing: 3px;
+
+        white-space: nowrap;
+
+        text-shadow:
+            0 0 8px rgba(255, 40, 85, 0.9),
+            0 0 20px rgba(255, 20, 70, 0.7),
+            0 0 40px rgba(255, 20, 70, 0.35);
+    }
+
+    /* =====================================
+       REPLAY BUTTON
+       ===================================== */
 
     #replay {
         position: fixed;
-        bottom: 22px;
+        bottom: 18px;
         left: 50%;
         transform: translateX(-50%);
-        padding: 11px 25px;
-        border: 1px solid #792033;
+
+        z-index: 10;
+
+        padding: 10px 23px;
+
+        border: 1px solid rgba(255, 90, 120, 0.55);
         border-radius: 30px;
-        background: #16030a;
-        color: #ff9bad;
+
+        background: rgba(20, 2, 9, 0.75);
+        color: #ffb0bf;
+
         font: 12px Arial, sans-serif;
         letter-spacing: 2px;
+
         cursor: pointer;
-        z-index: 10;
+        backdrop-filter: blur(5px);
+
+        transition: background 0.3s, box-shadow 0.3s;
     }
 
     #replay:hover {
-        background: #51091d;
-        box-shadow: 0 0 20px #a7193d;
+        background: rgba(100, 5, 30, 0.9);
+        box-shadow: 0 0 20px rgba(255, 20, 70, 0.5);
     }
 
     #error {
         position: fixed;
-        top: 15px;
-        left: 15px;
-        right: 15px;
-        color: #ff8b9e;
-        font: 14px monospace;
-        white-space: pre-wrap;
+        top: 10px;
+        left: 10px;
         z-index: 20;
+
+        color: #ff8b9e;
+        font: 13px monospace;
+        white-space: pre-wrap;
+    }
+
+    /* =====================================
+       MOBILE LAYOUT
+       ===================================== */
+
+    @media (max-width: 600px) {
+        .left-text {
+            left: 3%;
+        }
+
+        .right-text {
+            right: 3%;
+        }
+
+        .side-text {
+            font-size: 25px;
+        }
+
+        .bottom-text {
+            bottom: 55px;
+            font-size: 25px;
+        }
     }
 </style>
 </head>
 
 <body>
 
+<!-- Background photo -->
+<div id="photo-bg"></div>
+<div id="photo-overlay"></div>
+
+<!-- Animated heart -->
 <canvas id="canvas"></canvas>
+
+<!-- Surrounding text -->
 <div class="side-text left-text">I</div>
-
 <div class="side-text right-text">You</div>
+<div class="bottom-text">Shreeja ♥</div>
 
-<div class="bottom-text">Shreeja</div>
-<div id="error"></div>
+<!-- Replay -->
 <button id="replay">♥ REPLAY ♥</button>
+
+<div id="error"></div>
 
 <script>
 "use strict";
@@ -172,7 +243,7 @@ canvas {
         "Eu te amo",
         "Я тебя люблю",
         "사랑해",
-        "আমি তোমাকে ভালোবাসি",
+        "愛してる",
         "我爱你",
         "मैं तुमसे प्यार करता हूँ",
         "Σ' αγαπώ",
@@ -182,8 +253,7 @@ canvas {
         "ฉันรักเธอ",
         "Anh yêu em",
         "Aku cinta kamu",
-        "Я тебе кохаю",
-        "Shreeja"
+        "Я тебе кохаю"
     ];
 
     const WINE = [0.58, 0.00, 0.09];
@@ -197,11 +267,6 @@ canvas {
     const ctx = canvas.getContext("2d");
     const errorBox = document.getElementById("error");
 
-    if (!ctx) {
-        errorBox.textContent = "ERROR: Canvas is not supported.";
-        return;
-    }
-
     let W = 0;
     let H = 0;
     let DPR = 1;
@@ -213,7 +278,7 @@ canvas {
     let seed = 11;
 
     // =========================================
-    // RANDOM
+    // RANDOM NUMBER GENERATOR
     // =========================================
 
     function random() {
@@ -243,7 +308,7 @@ canvas {
     }
 
     // =========================================
-    // COLORS
+    // COLOR FUNCTIONS
     // =========================================
 
     function mix(a, b, k) {
@@ -263,7 +328,7 @@ canvas {
     }
 
     // =========================================
-    // HEART MATHEMATICS
+    // MATHEMATICAL HEART
     // =========================================
 
     function heart(a) {
@@ -292,10 +357,7 @@ canvas {
     const CY = (YMAX + YMIN) / 2;
 
     // =========================================
-    // HORIZONTAL HEART BOUNDARY
-    //
-    // Find intersections of a horizontal line
-    // with the mathematical heart polygon.
+    // HEART BOUNDARIES
     // =========================================
 
     function spans(y) {
@@ -309,9 +371,9 @@ canvas {
                 (a.y <= y && y < b.y) ||
                 (b.y <= y && y < a.y)
             ) {
-                const x = a.x +
-                    (y - a.y) * (b.x - a.x) /
-                    (b.y - a.y);
+                const x =
+                    a.x + (y - a.y) *
+                    (b.x - a.x) / (b.y - a.y);
 
                 xs.push(x);
             }
@@ -329,7 +391,7 @@ canvas {
     }
 
     // =========================================
-    // RESPONSIVE CANVAS
+    // RESIZE CANVAS
     // =========================================
 
     function resize() {
@@ -350,7 +412,7 @@ canvas {
     }
 
     // =========================================
-    // CREATE THE HEART
+    // GENERATE HEART PHRASES
     // =========================================
 
     function buildHeart() {
@@ -372,8 +434,6 @@ canvas {
 
         const rowHeight = 16;
 
-        // Draw the heart from top to bottom.
-
         for (
             let y = YMAX - rowHeight / 2;
             y > YMIN + rowHeight / 2;
@@ -388,10 +448,7 @@ canvas {
                 if (hi <= lo) continue;
 
                 let cursor = lo + between(0, 4);
-
                 const line = [];
-
-                // Fill this horizontal row with phrases.
 
                 while (cursor < hi) {
                     let selected = null;
@@ -414,7 +471,7 @@ canvas {
 
                     line.push({
                         x: cursor + selected.width / 2,
-                        y: y,
+                        y,
                         text: selected.text,
                         size: selected.size,
                         width: selected.width
@@ -422,8 +479,6 @@ canvas {
 
                     cursor += selected.width + GAP;
                 }
-
-                // Distribute phrases evenly along each row.
 
                 if (line.length > 1) {
                     const last = line[line.length - 1];
@@ -439,12 +494,12 @@ canvas {
                     line[0].x = (lo + hi) / 2;
                 }
 
-                // Assign colors and animation properties.
-
                 for (let i = 0; i < line.length; i++) {
                     const p = line[i];
 
-                    p.edge = i === 0 || i === line.length - 1;
+                    p.edge =
+                        i === 0 ||
+                        i === line.length - 1;
 
                     const radius = Math.min(
                         1,
@@ -477,17 +532,13 @@ canvas {
             }
         }
 
-        // Draw the heart outline first, then its interior.
-
         const outline = result.filter(p => p.edge);
         const interior = result.filter(p => !p.edge);
 
-        outline.sort((a, b) => {
-            return Math.atan2(a.x, a.y - CY) -
-                   Math.atan2(b.x, b.y - CY);
-        });
-
-        // Deterministic ordering: brightest outer areas first.
+        outline.sort((a, b) =>
+            Math.atan2(a.x, a.y - CY) -
+            Math.atan2(b.x, b.y - CY)
+        );
 
         interior.sort((a, b) => {
             const ra = Math.hypot(
@@ -511,17 +562,17 @@ canvas {
                 DURATION;
         });
 
-        console.log("Heart phrases generated:", ordered.length);
-
-        if (ordered.length === 0) {
+        if (!ordered.length) {
             throw new Error("No heart phrases were generated.");
         }
+
+        console.log("Heart generated:", ordered.length, "phrases");
 
         return ordered;
     }
 
     // =========================================
-    // DRAW A PHRASE
+    // DRAW EACH PHRASE
     // =========================================
 
     function drawParticle(p, elapsed) {
@@ -530,15 +581,10 @@ canvas {
         if (localTime < 0) return;
 
         const u = clamp(localTime / ANIM);
-
-        // Smooth cubic easing.
-
         const e = 1 - Math.pow(1 - u, 3);
 
         const x = p.x + p.dx * (1 - e);
         const y = p.y - (1 - e) * LIFT;
-
-        // Center the heart on the screen.
 
         const sx = W / 2 + x * SCALE;
         const sy = H / 2 - (y - CY) * SCALE;
@@ -581,19 +627,19 @@ canvas {
             sy + 3 * SCALE
         );
 
-        // Halo.
+        // Glow.
 
         ctx.font = `bold ${(p.size + 1) * SCALE}px ${FONT}`;
         ctx.fillStyle = hex(halo);
 
-        ctx.shadowBlur = 5 * SCALE;
         ctx.shadowColor = hex(dim(color, 0.3));
+        ctx.shadowBlur = 5 * SCALE;
 
         ctx.fillText(p.text, sx, sy);
 
         ctx.shadowBlur = 0;
 
-        // Main text.
+        // Main phrase.
 
         ctx.font = `bold ${p.size * SCALE}px ${FONT}`;
         ctx.fillStyle = hex(main);
@@ -638,23 +684,18 @@ canvas {
 
     // =========================================
     // RENDER FRAME
+    // Transparent canvas preserves photo.
     // =========================================
 
     function render(elapsed) {
-        // Clear the entire canvas.
-
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        ctx.fillStyle = BG;
-
-        ctx.fillRect(
+        ctx.clearRect(
             0,
             0,
             canvas.width,
             canvas.height
         );
-
-        // Switch to CSS pixel coordinates.
 
         ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
@@ -671,7 +712,6 @@ canvas {
 
     function animate(now) {
         render(now - startTime);
-
         frameId = requestAnimationFrame(animate);
     }
 
@@ -691,8 +731,6 @@ canvas {
 
             startTime = performance.now();
 
-            // The first frame is drawn immediately.
-
             render(0);
 
             frameId = requestAnimationFrame(animate);
@@ -701,9 +739,7 @@ canvas {
             console.error(err);
 
             errorBox.textContent =
-                "ANIMATION ERROR\n" +
-                err.message +
-                "\n\nOpen Chrome DevTools (Ctrl+Shift+J) for details.";
+                "ANIMATION ERROR: " + err.message;
         }
     }
 
@@ -720,7 +756,20 @@ canvas {
         }
     });
 
-    // Start automatically.
+    // Check whether the background image loaded.
+
+    const bg = new Image();
+
+    bg.onload = () => {
+        console.log("Shreeja background image loaded.");
+    };
+
+    bg.onerror = () => {
+        errorBox.textContent =
+            "Photo not found. Put shreeja.jpg beside index.html.";
+    };
+
+    bg.src = "./shreeja.jpg";
 
     start();
 
